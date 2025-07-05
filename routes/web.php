@@ -1,34 +1,20 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TrabajoController;
-use App\Http\Controllers\UserController;
 
-Route::get('/usuarios/registrar', [UserController::class, 'create'])->name('usuarios.create');
-Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
-
-
-// Ruta principal
 Route::get('/', function () {
-    return redirect()->route('trabajos.index'); // Redirige a /trabajos
+    return view('welcome');
 });
 
-// Grupo de rutas para trabajos
-Route::prefix('trabajos')->name('trabajos.')->group(function () {
-    Route::get('/', fn() => view('trabajos.index'))->name('index');
-    Route::get('/create', fn() => view('trabajos.create'))->name('create');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-    // Ruta para mostrar un trabajo específico
-    Route::get('/{id}', fn($id) => view('trabajos.show'))->name('show');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::prefix('miembros')->name('miembros.')->group(function () {
-    Route::get('/', fn() => view('miembros.index'))->name('index');
-    Route::get('/{id}/subir', fn($id) => view('miembros.subir'))->name('subir');
-    Route::get('/{id}/editar', fn($id) => view('miembros.editar'))->name('editar');
-});
-
-Route::prefix('docente')->name('docente.')->group(function () {
-    Route::get('/', fn() => view('docente.index'))->name('index');
-    Route::get('/{id}', fn($id) => view('docente.show'))->name('show');
-});
+require __DIR__.'/auth.php';
